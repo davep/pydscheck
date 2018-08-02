@@ -1,0 +1,138 @@
+#!/usr/bin/env python3
+"""Tool to perform simple Python doc string tests."""
+
+##############################################################################
+# Module information.
+__author__     = "Dave Pearson"
+__copyright__  = "Copyright 2018, Dave Pearson"
+__licence__    = "GPL"
+__credits__    = [ "Dave Pearson" ]
+__maintainer__ = "Dave Pearson"
+__email__      = "davep@davep.org"
+__version__    = "0.0.1"
+
+##############################################################################
+# Imports.
+import ast
+import argparse
+
+##############################################################################
+# Get all of the doc-able nodes in the given module.
+def module_docable_parts( module ):
+    """Get nodes that can have doc strings.
+
+    :param Module module: The module to pull nodes from.
+    :returns: A list of nodes in module that can have doc strings.
+    """
+    return [
+        node for node in module
+        if isinstance( node, ( ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef ) )
+    ]
+
+##############################################################################
+# Get the line count of a doc string.
+def line_count( doc_string ):
+    """Get the line count of a doc string.
+
+    :param str doc_string: The doc string to get the line count for.
+    :returns: The number of lines found in the doc string.
+    :rtype: int
+    """
+    return len( doc_string.split( "\n" ) )
+
+##############################################################################
+# Check the doc string of the given node
+def check_doc_string( module, node ):
+    """Check the doc string of the given node.
+
+    :param str module: The name of the module we're checking.
+    :param AST node: The ast node to check.
+    """
+
+    # Work out what name to show.
+    try:
+        name = node.name
+    except AttributeError:
+        name = module
+
+    # Work out the line number.
+    try:
+        lineno = node.lineno
+    except AttributeError:
+        lineno = 0
+
+    # Extract the doc string for the given node.
+    doc_string = ast.get_docstring( node, clean=False )
+
+    def report( error ):
+        print( "{}: {}: {} ({})".format( module, error, name, lineno ) )
+
+    # If we found one...
+    if doc_string:
+        # If it has more than one line...
+        if line_count( doc_string ) > 1:
+            # ...check it ends with an empty line.
+            if not doc_string.endswith( "\n    " ):
+                # Doesn't look good. Report it.
+                report( "Bad doc string ending" )
+    else:
+        report( "Missing doc string" )
+
+##############################################################################
+# Check the doc strings of a given file.
+def check( file ):
+    """Check the doc strings in the given file.
+
+    :param str file: The name of the file to check.
+    """
+
+    # Load and parse the file.
+    module = ast.parse( open( file ).read() )
+
+    # Check the module itself.
+    check_doc_string( file, module )
+
+    # For each thing in the module that can have a doc string...
+    for node in module_docable_parts( module.body ):
+        # ...check its doc string.
+        check_doc_string( file, node )
+
+##############################################################################
+# Get the command line params.
+def get_args():
+    """Parse the command line parameters.
+
+    :returns: The parsed command line arguments.
+    """
+
+    # Create the argument parser object.
+    parser = argparse.ArgumentParser(
+        description = "Python doc string checker",
+        epilog      = "v{}".format( __version__ )
+    )
+
+    # The remainder is the files to check.
+    parser.add_argument( "files", nargs = argparse.REMAINDER )
+
+    # Parse the command line.
+    return parser.parse_args()
+
+##############################################################################
+# Main code.
+def main():
+    """Main entry point."""
+
+    # Get the arguments.
+    args = get_args()
+
+    # For each file we've been asked to check...
+    for file in args.files:
+        # ...check it.
+        check( file )
+
+##############################################################################
+# Main entry point.
+if __name__ == "__main__":
+    main()
+
+### pydscheck ends here
