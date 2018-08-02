@@ -80,11 +80,16 @@ def check_doc_string( module, node ):
 
 ##############################################################################
 # Check the doc strings of a given file.
-def check( file ):
+def check( args, file ):
     """Check the doc strings in the given file.
 
+    :param args: The arguments pulled from the command line.
     :param str file: The name of the file to check.
     """
+
+    def ignoring( reason ):
+        if not args.quiet_ignores:
+            print( "{}: {}, ignoring.".format( file, reason ) )
 
     try:
 
@@ -100,9 +105,9 @@ def check( file ):
             check_doc_string( file, node )
 
     except IsADirectoryError:
-        print( "{}: Is a directory, ignoring.".format( file ) )
+        ignoring( "Is a directory" )
     except SyntaxError:
-        print( "{}: Syntax error, ignoring.".format( file ) )
+        ignoring( "Syntax error" )
 
 ##############################################################################
 # Get the command line params.
@@ -116,6 +121,13 @@ def get_args():
     parser = argparse.ArgumentParser(
         description = "Python doc string checker",
         epilog      = "v{}".format( __version__ )
+    )
+
+    # Add --quiet-ignores
+    parser.add_argument(
+        "-q", "--quiet-ignores",
+        help   = "Don't report ignored files.",
+        action = "store_true"
     )
 
     # The remainder is the files to check.
@@ -135,7 +147,7 @@ def main():
     # For each file we've been asked to check...
     for file in args.files:
         # ...check it.
-        check( file )
+        check( args, file )
 
 ##############################################################################
 # Main entry point.
