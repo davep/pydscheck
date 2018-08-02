@@ -86,16 +86,21 @@ def check( file ):
     :param str file: The name of the file to check.
     """
 
-    # Load and parse the file.
-    module = ast.parse( open( file ).read() )
+    try:
 
-    # Check the module itself.
-    check_doc_string( file, module )
+        # Load and parse the file.
+        module = ast.parse( open( file ).read() )
 
-    # For each thing in the module that can have a doc string...
-    for node in module_docable_parts( module.body ):
-        # ...check its doc string.
-        check_doc_string( file, node )
+        # Check the module itself.
+        check_doc_string( file, module )
+
+        # For each thing in the module that can have a doc string...
+        for node in module_docable_parts( module.body ):
+            # ...check its doc string.
+            check_doc_string( file, node )
+
+    except SyntaxError:
+        print( "{}: Syntax error, ignoring.".format( file ) )
 
 ##############################################################################
 # Get the command line params.
