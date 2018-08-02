@@ -99,6 +99,8 @@ def check( file ):
             # ...check its doc string.
             check_doc_string( file, node )
 
+    except IsADirectoryError:
+        print( "{}: Is a directory, ignoring.".format( file ) )
     except SyntaxError:
         print( "{}: Syntax error, ignoring.".format( file ) )
 
