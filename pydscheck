@@ -130,6 +130,14 @@ def get_args():
         action = "store_true"
     )
 
+    # Add --version
+    parser.add_argument(
+        "-v", "--version",
+        help    = "Show version information.",
+        action  = "version",
+        version = "%(prog)s v{}".format( __version__ )
+    )
+
     # The remainder is the files to check.
     parser.add_argument( "files", nargs = argparse.REMAINDER )
 
