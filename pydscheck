@@ -73,7 +73,7 @@ def check_doc_string( module, node ):
         # If it has more than one line...
         if line_count( doc_string ) > 1:
             # ...check it ends with an empty line.
-            if not ( doc_string.endswith( ( "\n    ", "\n" ) ) ):
+            if not doc_string.endswith( ( "\n    ", "\n" ) ):
                 # Doesn't look good. Report it.
                 report( "Bad doc string ending" )
     else:
