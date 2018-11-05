@@ -22,12 +22,13 @@ def module_docable_parts( module ):
     """Get nodes that can have doc strings.
 
     :param Module module: The module to pull nodes from.
-    :returns: A list of nodes in module that can have doc strings.
+    :returns: A generator of nodes in module that can have doc strings.
+    :rtype: generator
     """
-    return [
+    return (
         node for node in module
         if isinstance( node, ( ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef ) )
-    ]
+    )
 
 ##############################################################################
 # Get the line count of a doc string.
