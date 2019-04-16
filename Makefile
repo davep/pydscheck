@@ -1,9 +1,9 @@
+.PHONY: setup
 setup:
 	pipenv sync --dev
 
+.PHONY: lint
 lint:
 	pipenv run pylint pydscheck
-
-.PHONY: setup lint
 
 ### Makefile ends here
