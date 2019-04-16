@@ -65,6 +65,7 @@ def check_doc_string( module, node ):
     doc_string = ast.get_docstring( node, clean=False )
 
     def report( error ):
+        """Report the given error."""
         print( "{}: {}: {} ({})".format( module, error, name, lineno ) )
 
     # If we found one...
@@ -90,6 +91,7 @@ def check( args, file ):
     """
 
     def ignoring( reason ):
+        """Report an ignored source."""
         if not args.quiet_ignores:
             print( "{}: {}, ignoring.".format( file, reason ) )
 
