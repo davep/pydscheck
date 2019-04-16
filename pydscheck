@@ -39,7 +39,7 @@ def line_count( doc_string ):
     :returns: The number of lines found in the doc string.
     :rtype: int
     """
-    return len( doc_string.split( "\n" ) )
+    return len( doc_string.splitlines() )
 
 ##############################################################################
 # Check the doc string of the given node
