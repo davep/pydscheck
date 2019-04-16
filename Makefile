@@ -19,6 +19,9 @@ depsupdate:			# Update all dependencies
 lint:				# Run pylint over the code.
 	$(lint) pydscheck
 
+dscheck:			# Run the tool over itself.
+	$(run) ./pydscheck pydscheck
+
 .PHONY: help
 help:				# Display this help
 	@grep -Eh "^[a-z]+:.+# " $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.+# "}; {printf "%-20s %s\n", $$1, $$2}'
