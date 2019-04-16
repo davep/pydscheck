@@ -19,6 +19,7 @@ depsupdate:			# Update all dependencies
 lint:				# Run pylint over the code.
 	$(lint) pydscheck
 
+.PHONY: dscheck
 dscheck:			# Run the tool over itself.
 	$(run) ./pydscheck pydscheck
 
