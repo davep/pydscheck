@@ -71,8 +71,10 @@ def check_doc_string( module, node ):
     if doc_string:
         # If it has more than one line...
         if line_count( doc_string ) > 1:
-            # ...check it ends with an empty line.
-            if doc_string.splitlines()[ -1 ].strip():
+            # ...check it ends with an empty line. Note that we add a space
+            # to the end to ensure that any trailing EOL results in an entry
+            # at the end of the list.
+            if ( doc_string + " " ).splitlines()[ -1 ].strip():
                 # Doesn't look good. Report it.
                 report( "Bad doc string ending" )
     else:
