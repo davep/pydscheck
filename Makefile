@@ -7,6 +7,14 @@ lint = $(run) pylint
 setup:				# Install development/tool dependencies
 	pipenv sync --dev
 
+.PHONY: depsoutdated
+depsoutdated:			# Show a list of outdated dependencies
+	pipenv update --outdated
+
+.PHONY: depsupdate
+depsupdate:			# Update all dependencies
+	pipenv update --dev
+
 .PHONY: lint
 lint:				# Run pylint over the code.
 	$(lint) pydscheck
