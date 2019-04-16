@@ -1,5 +1,5 @@
 setup:
-	pipenv install --dev
+	pipenv sync --dev
 
 lint:
 	pipenv run pylint pydscheck
