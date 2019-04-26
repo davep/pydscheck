@@ -13,8 +13,10 @@ __version__    = "1.0.1"
 
 ##############################################################################
 # Imports.
+import os
 import ast
 import argparse
+from   pathlib import Path
 
 ##############################################################################
 # Get all of the doc-able nodes in the given module.
@@ -45,7 +47,7 @@ def line_count( doc_string ):
 def check_doc_string( module, node ):
     """Check the doc string of the given node.
 
-    :param str module: The name of the module we're checking.
+    :param PosixPath module: The path of the module we're checking.
     :param AST node: The ast node to check.
     """
 
@@ -53,7 +55,7 @@ def check_doc_string( module, node ):
     try:
         name = node.name
     except AttributeError:
-        name = module
+        name = module.name
 
     # Work out the line number.
     try:
@@ -64,9 +66,16 @@ def check_doc_string( module, node ):
     # Extract the doc string for the given node.
     doc_string = ast.get_docstring( node, clean=False )
 
+    def short( module ):
+        """Get a short name for the path that makes sense."""
+        try:
+            return module.relative_to( Path().cwd() )
+        except ValueError:
+            return str( module )
+
     def report( error ):
         """Report the given error."""
-        print( "{}: {}: {} ({})".format( module, error, name, lineno ) )
+        print( "{}: {}: {} ({})".format( short( module ), error, name, lineno ) )
 
     # If we found one...
     if doc_string:
@@ -82,23 +91,30 @@ def check_doc_string( module, node ):
         report( "Missing doc string" )
 
 ##############################################################################
+# Report that we're ignoring something.
+def ignoring( args, thing, reason ):
+    """Report an ignored source.
+
+    :param args: The arguments pulled from the command line.
+    :param str thing: The thing we're ignoring.
+    :param str reason: The reason we're ignoring it.
+    """
+    if not args.quiet_ignores:
+        print( "{}: {}, ignoring.".format( thing, reason ) )
+
+##############################################################################
 # Check the doc strings of a given file.
 def check( args, file ):
     """Check the doc strings in the given file.
 
     :param args: The arguments pulled from the command line.
-    :param str file: The name of the file to check.
+    :param PosixPath file: The name of the file to check.
     """
-
-    def ignoring( reason ):
-        """Report an ignored source."""
-        if not args.quiet_ignores:
-            print( "{}: {}, ignoring.".format( file, reason ) )
 
     try:
 
         # Load and parse the file.
-        module = ast.parse( open( file ).read() )
+        module = ast.parse( file.open( "rb" ).read() )
 
         # Check the module itself.
         check_doc_string( file, module )
@@ -108,10 +124,8 @@ def check( args, file ):
             # ...check its doc string.
             check_doc_string( file, node )
 
-    except IsADirectoryError:
-        ignoring( "Is a directory" )
     except SyntaxError:
-        ignoring( "Syntax error" )
+        ignoring( args, file, "Syntax error" )
 
 ##############################################################################
 # Get the command line params.
@@ -142,11 +156,101 @@ def get_args():
         version = "%(prog)s v{}".format( __version__ )
     )
 
-    # The remainder is the files to check.
-    parser.add_argument( "files", nargs = argparse.REMAINDER )
+    # The remainder is the paths/files to check.
+    parser.add_argument(
+        "to_check",
+        nargs = argparse.REMAINDER,
+        help  = "Files and directories to check"
+    )
 
     # Parse the command line.
     return parser.parse_args()
+
+##############################################################################
+# Does it look like the given file is hidden somehow?
+def is_hidden( candidate ):
+    """Does the given file look hidden in some way?
+
+    :param PosixPath candidate: The candidate file.
+    :returns: A flag to say if the file looks hidden.
+    :rtype: bool
+    """
+    return any( parent.name.startswith( "." ) for parent in candidate.parents )
+
+##############################################################################
+# Does the given file look like it's a shebang Python script?
+def shebang_python( candidate ):
+    """Does a given file look like a Python shebang file?
+
+    :param PosixPath candidate: The candidate file.
+    :returns: A flag to say if the file looks like it might be Python code.
+    :rtype: bool
+    """
+
+    try:
+        with candidate.open( "rb" ) as source:
+            first_line = source.readline()
+            return first_line[ :2 ] == b"#!" and b"python" in first_line
+    except IOError:
+        return False
+
+##############################################################################
+# Does the candidate look like a Python file?
+def is_python( candidate ):
+    """Does a given file look like it might be Python source?
+
+    :param PosixPath candidate: The candidate file.
+    :returns: A flag to say if the file looks like it might be Python code.
+    :rtype: bool
+    """
+    return (
+        # Is it a .py file?
+        candidate.suffix.lower() == ".py" or
+        # If not...
+        (
+            # ...does it lack and extension...
+            candidate.suffix.lower() == "" and
+            # ...and does it look like a shebang python script?
+            shebang_python( candidate )
+        )
+    )
+
+##############################################################################
+# Should we check a file?
+def should_check( candidate ):
+    """Should we check the given file?
+
+    :param PosixPath candidate: The candidate file.
+    :returns: A flag to say if we should check the file or not.
+    :rtype: bool
+
+    A file should be check if it isn't hidden and it looks like it's Python
+    source.
+    """
+    return ( not is_hidden( candidate ) ) and is_python( candidate )
+
+##############################################################################
+# Perform a recursive check over Python files.
+def recursive_check( args, to_check ):
+    """Perform a recursive check of Python files.
+
+    :param Namespace args: The command line arguments.
+    :param PosixPath to_check: The path to check.
+    """
+
+    # Let's walk the while tree from the given location.
+    for root, _, files in os.walk( str( to_check ) ):
+
+        # For each file we've been given...
+        for file in files:
+
+            # Create the fill candidate path.
+            candidate = Path( root ).resolve() / file
+
+            # If we should look at the candidate...
+            if should_check( candidate ):
+                # ...check it.
+                check( args, candidate )
 
 ##############################################################################
 # Main code.
@@ -156,10 +260,18 @@ def main():
     # Get the arguments.
     args = get_args()
 
-    # For each file we've been asked to check...
-    for file in args.files:
-        # ...check it.
-        check( args, file )
+    # For each file/directory we've been asked to check...
+    for to_check in [ Path( path ).resolve() for path in args.to_check ]:
+        # If it's simply a file...
+        if to_check.is_file():
+            # ...simply check it.
+            check( args, to_check )
+        elif to_check.is_dir():
+            # It's a directory, let's go recursive...
+            recursive_check( args, to_check )
+        else:
+            # Not a file or directory!
+            ignoring( args, to_check, "Not a file or directory" )
 
 ##############################################################################
 # Main entry point.
