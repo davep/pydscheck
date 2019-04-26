@@ -229,16 +229,16 @@ def should_check( candidate ):
     return ( not is_hidden( candidate ) ) and is_python( candidate )
 
 ##############################################################################
-# Remove some directories we normally don't want to look inside of.
-def remove_usual_hidden( args, dirs ):
-    """Remove common ignorable directories from the given list.
+# Remove ignorable directories.
+def remove_ignorable_dirs( args, dirs ):
+    """Remove ignorable directories from the given list.
 
     :param list dirs: The list of directories to be looked at.
     """
-    for suspect in IGNORABLE_DIRS:
+    for ignorable in IGNORABLE_DIRS + ( args.ignore or [] ):
         try:
-            dirs.remove( suspect )
-            verbose( args, "Skipping content of {}".format( suspect ) )
+            dirs.remove( ignorable )
+            verbose( args, "Skipping content of {}".format( ignorable ) )
         except ValueError:
             pass
 
@@ -259,9 +259,8 @@ def recursive_check( args, to_check ):
     # Let's walk the while tree from the given location.
     for root, dirs, files in os.walk( str( to_check ) ):
 
-        # Remove the usual suspects from the list of sub-directories. This
-        # speeds things up a little.
-        remove_usual_hidden( args, dirs )
+        # Remove directories we should ignore.
+        remove_ignorable_dirs( args, dirs )
 
         # For each file we've been given...
         for file in files:
@@ -293,6 +292,13 @@ def get_args():
     parser = argparse.ArgumentParser(
         description = "Python doc string checker",
         epilog      = "v{}".format( __version__ )
+    )
+
+    # Add --ignore
+    parser.add_argument(
+        "-i", "--ignore",
+        help   = "Ignore any directory that matches the name.",
+        action = "append"
     )
 
     # Add --quiet-ignores
