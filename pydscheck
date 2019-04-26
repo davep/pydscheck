@@ -15,8 +15,23 @@ __version__    = "1.1.0"
 # Imports.
 import os
 import ast
+import sys
 import argparse
 from   pathlib import Path
+
+##############################################################################
+# Get the short name of a path.
+def short( path ):
+    """Get a short name for the path that makes sense.
+
+    :param PosixPath path: The path to get a short name for.
+    :returns: As short a name as possible for the given path.
+    :rtype: str
+    """
+    try:
+        return path.relative_to( Path().cwd() )
+    except ValueError:
+        return str( module )
 
 ##############################################################################
 # Get all of the doc-able nodes in the given module.
@@ -66,13 +81,6 @@ def check_doc_string( module, node ):
     # Extract the doc string for the given node.
     doc_string = ast.get_docstring( node, clean=False )
 
-    def short( module ):
-        """Get a short name for the path that makes sense."""
-        try:
-            return module.relative_to( Path().cwd() )
-        except ValueError:
-            return str( module )
-
     def report( error ):
         """Report the given error."""
         print( "{}: {}: {} ({})".format( short( module ), error, name, lineno ) )
@@ -103,6 +111,17 @@ def ignoring( args, thing, reason ):
         print( "{}: {}, ignoring.".format( thing, reason ) )
 
 ##############################################################################
+# Produce verbose output.
+def verbose( args, feedback ):
+    """Print output if we're in verbose mode.
+
+    :param args: The arguments pulled from the command line.
+    :param str feedback: The feedback to print
+    """
+    if args.verbose:
+        print( feedback, file=sys.stderr )
+
+##############################################################################
 # Check the doc strings of a given file.
 def check( args, file ):
     """Check the doc strings in the given file.
@@ -110,6 +129,9 @@ def check( args, file ):
     :param args: The arguments pulled from the command line.
     :param PosixPath file: The name of the file to check.
     """
+
+    # Feedback on what we're checking.
+    verbose( args, "Checking {}".format( short( file ) ) )
 
     try:
 
@@ -207,6 +229,8 @@ def recursive_check( args, to_check ):
             if should_check( candidate ):
                 # ...check it.
                 check( args, candidate )
+            else:
+                verbose( args, "Skipping {}".format( short( candidate ) ) )
 
 ##############################################################################
 # Get the command line params.
@@ -229,9 +253,16 @@ def get_args():
         action = "store_true"
     )
 
+    # Add --verbose
+    parser.add_argument(
+        "-v", "--verbose",
+        help    = "Be verbose (output what is going on).",
+        action  = "store_true"
+    )
+
     # Add --version
     parser.add_argument(
-        "-v", "--version",
+        "-V", "--version",
         help    = "Show version information.",
         action  = "version",
         version = "%(prog)s v{}".format( __version__ )
