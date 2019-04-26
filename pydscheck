@@ -173,7 +173,6 @@ def shebang_python( candidate ):
     :returns: A flag to say if the file looks like it might be Python code.
     :rtype: bool
     """
-
     try:
         with candidate.open( "rb" ) as source:
             first_line = source.readline()
