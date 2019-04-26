@@ -12,16 +12,16 @@ __email__      = "davep@davep.org"
 __version__    = "1.1.0"
 
 ##############################################################################
-# The list of directories that we'll normally not dive in to.
-IGNORABLE_DIRS = [ ".git", ".venv" ]
-
-##############################################################################
 # Imports.
 import os
 import ast
 import sys
 import argparse
 from   pathlib import Path
+
+##############################################################################
+# The list of directories that we'll normally not dive in to.
+IGNORABLE_DIRS = [ ".git", ".venv" ]
 
 ##############################################################################
 # Get the short name of a path.
