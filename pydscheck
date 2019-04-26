@@ -235,7 +235,7 @@ def recursive_check( args, to_check ):
     """
 
     # Let's walk the while tree from the given location.
-    for root, dirs, files in os.walk( str( to_check ), topdown=True ):
+    for root, dirs, files in os.walk( str( to_check ) ):
 
         # Remove the usual suspects from the list of sub-directories. This
         # speeds things up a little.
