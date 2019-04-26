@@ -103,7 +103,7 @@ def check_doc_string( module, node ):
 def ignoring( args, thing, reason ):
     """Report an ignored source.
 
-    :param args: The arguments pulled from the command line.
+    :param Namespace args: The command line arguments.
     :param str thing: The thing we're ignoring.
     :param str reason: The reason we're ignoring it.
     """
@@ -115,7 +115,7 @@ def ignoring( args, thing, reason ):
 def verbose( args, feedback ):
     """Print output if we're in verbose mode.
 
-    :param args: The arguments pulled from the command line.
+    :param Namespace args: The command line arguments.
     :param str feedback: The feedback to print
     """
     if args.verbose:
@@ -126,7 +126,7 @@ def verbose( args, feedback ):
 def check( args, file ):
     """Check the doc strings in the given file.
 
-    :param args: The arguments pulled from the command line.
+    :param Namespace args: The command line arguments.
     :param PosixPath file: The name of the file to check.
     """
 
