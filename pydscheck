@@ -12,6 +12,10 @@ __email__      = "davep@davep.org"
 __version__    = "1.1.0"
 
 ##############################################################################
+# The list of directories that we'll normally not dive in to.
+IGNORABLE_DIRS = [ ".git", ".venv" ]
+
+##############################################################################
 # Imports.
 import os
 import ast
@@ -208,6 +212,20 @@ def should_check( candidate ):
     return ( not is_hidden( candidate ) ) and is_python( candidate )
 
 ##############################################################################
+# Remove some directories we normally don't want to look inside of.
+def remove_usual_hidden( args, dirs ):
+    """Remove common ignorable directories from the given list.
+
+    :param list dirs: The list of directories to be looked at.
+    """
+    for suspect in IGNORABLE_DIRS:
+        try:
+            dirs.remove( suspect )
+            verbose( args, "Skipping content of {}".format( suspect ) )
+        except ValueError:
+            pass
+
+##############################################################################
 # Perform a recursive check over Python files.
 def recursive_check( args, to_check ):
     """Perform a recursive check of Python files.
@@ -217,7 +235,11 @@ def recursive_check( args, to_check ):
     """
 
     # Let's walk the while tree from the given location.
-    for root, _, files in os.walk( str( to_check ) ):
+    for root, dirs, files in os.walk( str( to_check ), topdown=True ):
+
+        # Remove the usual suspects from the list of sub-directories. This
+        # speeds things up a little.
+        remove_usual_hidden( args, dirs )
 
         # For each file we've been given...
         for file in files:
