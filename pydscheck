@@ -351,7 +351,14 @@ def main():
     okay = True
 
     # For each file/directory we've been asked to check...
-    for to_check in [ Path( path ).resolve() for path in args.to_check ]:
+    for to_check in args.to_check:
+
+        # Try and fully resolve the path.
+        try:
+            to_check = Path( to_check ).resolve()
+        except FileNotFoundError:
+            to_check = Path( to_check )
+
         # If it's simply a file...
         if to_check.is_file():
             # ...simply check it.
