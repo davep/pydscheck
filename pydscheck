@@ -206,13 +206,8 @@ def is_python( candidate ):
     return (
         # Is it a .py file?
         candidate.suffix.lower() == ".py" or
-        # If not...
-        (
-            # ...does it lack and extension...
-            candidate.suffix.lower() == "" and
-            # ...and does it look like a shebang python script?
-            shebang_python( candidate )
-        )
+        # ...or perhaps a suffixless file with a Python shebang?
+        ( candidate.suffix == "" and shebang_python( candidate ) )
     )
 
 ##############################################################################
