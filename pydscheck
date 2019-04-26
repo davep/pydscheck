@@ -128,45 +128,6 @@ def check( args, file ):
         ignoring( args, file, "Syntax error" )
 
 ##############################################################################
-# Get the command line params.
-def get_args():
-    """Parse the command line parameters.
-
-    :returns: The parsed command line arguments.
-    """
-
-    # Create the argument parser object.
-    parser = argparse.ArgumentParser(
-        description = "Python doc string checker",
-        epilog      = "v{}".format( __version__ )
-    )
-
-    # Add --quiet-ignores
-    parser.add_argument(
-        "-q", "--quiet-ignores",
-        help   = "Don't report ignored files.",
-        action = "store_true"
-    )
-
-    # Add --version
-    parser.add_argument(
-        "-v", "--version",
-        help    = "Show version information.",
-        action  = "version",
-        version = "%(prog)s v{}".format( __version__ )
-    )
-
-    # The remainder is the paths/files to check.
-    parser.add_argument(
-        "to_check",
-        nargs = argparse.REMAINDER,
-        help  = "Files and directories to check"
-    )
-
-    # Parse the command line.
-    return parser.parse_args()
-
-##############################################################################
 # Does it look like the given file is hidden somehow?
 def is_hidden( candidate ):
     """Does the given file look hidden in some way?
@@ -246,6 +207,45 @@ def recursive_check( args, to_check ):
             if should_check( candidate ):
                 # ...check it.
                 check( args, candidate )
+
+##############################################################################
+# Get the command line params.
+def get_args():
+    """Parse the command line parameters.
+
+    :returns: The parsed command line arguments.
+    """
+
+    # Create the argument parser object.
+    parser = argparse.ArgumentParser(
+        description = "Python doc string checker",
+        epilog      = "v{}".format( __version__ )
+    )
+
+    # Add --quiet-ignores
+    parser.add_argument(
+        "-q", "--quiet-ignores",
+        help   = "Don't report ignored files.",
+        action = "store_true"
+    )
+
+    # Add --version
+    parser.add_argument(
+        "-v", "--version",
+        help    = "Show version information.",
+        action  = "version",
+        version = "%(prog)s v{}".format( __version__ )
+    )
+
+    # The remainder is the paths/files to check.
+    parser.add_argument(
+        "to_check",
+        nargs = argparse.REMAINDER,
+        help  = "Files and directories to check"
+    )
+
+    # Parse the command line.
+    return parser.parse_args()
 
 ##############################################################################
 # Main code.
