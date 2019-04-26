@@ -238,6 +238,7 @@ def get_args():
     """Parse the command line parameters.
 
     :returns: The parsed command line arguments.
+    :rtype: Namespace
     """
 
     # Create the argument parser object.
