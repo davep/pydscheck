@@ -21,7 +21,7 @@ from   pathlib import Path
 
 ##############################################################################
 # The list of directories that we'll normally not dive in to.
-IGNORABLE_DIRS = [ ".git", ".venv" ]
+IGNORABLE_DIRS = [ ".git", ".venv", "__pycache__" ]
 
 ##############################################################################
 # Get the short name of a path.
