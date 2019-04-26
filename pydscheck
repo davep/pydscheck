@@ -194,7 +194,7 @@ def shebang_python( candidate ):
     try:
         with candidate.open( "rb" ) as source:
             first_line = source.readline()
-            return first_line[ :2 ] == b"#!" and b"python" in first_line
+        return first_line.startswith( b"#!" ) and b"python" in first_line
     except IOError:
         return False
 
