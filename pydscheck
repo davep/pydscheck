@@ -326,8 +326,10 @@ def get_args():
     # The remainder is the paths/files to check.
     parser.add_argument(
         "to_check",
-        nargs = argparse.REMAINDER,
-        help  = "Files and directories to check"
+        metavar = "file/dir",
+        nargs   = "*",
+        default = [ "." ],
+        help    = "Files and directories to check"
     )
 
     # Parse the command line.
@@ -349,7 +351,7 @@ def main():
     okay = True
 
     # For each file/directory we've been asked to check...
-    for to_check in [ Path( path ).resolve() for path in args.to_check or [ "." ] ]:
+    for to_check in [ Path( path ).resolve() for path in args.to_check ]:
         # If it's simply a file...
         if to_check.is_file():
             # ...simply check it.
