@@ -68,7 +68,12 @@ def check_doc_string( module, node ):
 
     :param PosixPath module: The path of the module we're checking.
     :param AST node: The ast node to check.
+    :returns: A flag to say if the doc string looked okay.
+    :rtype: bool
     """
+
+    # Assume we're all okay.
+    okay = True
 
     # Work out what name to show.
     try:
@@ -88,6 +93,7 @@ def check_doc_string( module, node ):
     def report( error ):
         """Report the given error."""
         print( "{}: {}: {} ({})".format( short( module ), error, name, lineno ) )
+        return False
 
     # If we found one...
     if doc_string:
@@ -98,9 +104,12 @@ def check_doc_string( module, node ):
             # at the end of the list.
             if ( doc_string + " " ).splitlines()[ -1 ].strip():
                 # Doesn't look good. Report it.
-                report( "Bad doc string ending" )
+                okay = report( "Bad doc string ending" )
     else:
-        report( "Missing doc string" )
+        okay = report( "Missing doc string" )
+
+    # Return what we found.
+    return okay
 
 ##############################################################################
 # Report that we're ignoring something.
@@ -132,7 +141,12 @@ def check( args, file ):
 
     :param Namespace args: The command line arguments.
     :param PosixPath file: The name of the file to check.
+    :returns: A flag to say if the file looked okay.
+    :rtype: bool
     """
+
+    # Set out assuming everything's okay.
+    okay = True
 
     # Feedback on what we're checking.
     verbose( args, "Checking {}".format( short( file ) ) )
@@ -148,10 +162,14 @@ def check( args, file ):
         # For each thing in the module that can have a doc string...
         for node in module_docable_parts( module.body ):
             # ...check its doc string.
-            check_doc_string( file, node )
+            if not check_doc_string( file, node ):
+                okay = False
 
     except SyntaxError:
         ignoring( args, file, "Syntax error" )
+
+    # Return what we thought of the file.
+    return okay
 
 ##############################################################################
 # Does it look like the given file is hidden somehow?
@@ -231,7 +249,12 @@ def recursive_check( args, to_check ):
 
     :param Namespace args: The command line arguments.
     :param PosixPath to_check: The path to check.
+    :returns: A flag to say if any issues were found.
+    :rtype: bool
     """
+
+    # Assume everything's okay.
+    okay = True
 
     # Let's walk the while tree from the given location.
     for root, dirs, files in os.walk( str( to_check ) ):
@@ -249,9 +272,13 @@ def recursive_check( args, to_check ):
             # If we should look at the candidate...
             if should_check( candidate ):
                 # ...check it.
-                check( args, candidate )
+                if not check( args, candidate ):
+                    okay = False
             else:
                 verbose( args, "Skipping {}".format( short( candidate ) ) )
+
+    # Report if any issues where found.
+    return okay
 
 ##############################################################################
 # Get the command line params.
@@ -303,27 +330,39 @@ def get_args():
 ##############################################################################
 # Main code.
 def main():
-    """Main entry point."""
+    """Main entry point.
+
+    :returns: A flag to say if any problems were found.
+    :rtype: bool
+    """
 
     # Get the arguments.
     args = get_args()
+
+    # Assume everything is okay.
+    okay = True
 
     # For each file/directory we've been asked to check...
     for to_check in [ Path( path ).resolve() for path in args.to_check or [ "." ] ]:
         # If it's simply a file...
         if to_check.is_file():
             # ...simply check it.
-            check( args, to_check )
+            if not check( args, to_check ):
+                okay = False
         elif to_check.is_dir():
             # It's a directory, let's go recursive...
-            recursive_check( args, to_check )
+            if not recursive_check( args, to_check ):
+                okay = False
         else:
             # Not a file or directory!
             ignoring( args, to_check, "Not a file or directory" )
 
+    # Report on what was found.
+    return okay
+
 ##############################################################################
 # Main entry point.
 if __name__ == "__main__":
-    main()
+    sys.exit( 0 if main() else 1 )
 
 ### pydscheck ends here
