@@ -256,7 +256,7 @@ def main():
     args = get_args()
 
     # For each file/directory we've been asked to check...
-    for to_check in [ Path( path ).resolve() for path in args.to_check ]:
+    for to_check in [ Path( path ).resolve() for path in args.to_check or [ "." ] ]:
         # If it's simply a file...
         if to_check.is_file():
             # ...simply check it.
