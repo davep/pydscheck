@@ -35,7 +35,7 @@ def short( path ):
     try:
         return path.relative_to( Path().cwd() )
     except ValueError:
-        return str( module )
+        return str( path )
 
 ##############################################################################
 # Get all of the doc-able nodes in the given module.
