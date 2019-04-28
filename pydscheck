@@ -256,7 +256,7 @@ def recursive_check( args, to_check ):
     # Assume everything's okay.
     okay = True
 
-    # Let's walk the while tree from the given location.
+    # Let's walk the whole tree from the given location.
     for root, dirs, files in os.walk( str( to_check ) ):
 
         # Remove directories we should ignore.
