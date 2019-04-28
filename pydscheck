@@ -361,7 +361,7 @@ def main():
 
         # If it's simply a file...
         if to_check.is_file():
-            # ...simply check it.
+            # ...just check it.
             if not check( args, to_check ):
                 okay = False
         elif to_check.is_dir():
