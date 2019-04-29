@@ -344,33 +344,39 @@ def main():
     :rtype: bool
     """
 
-    # Get the arguments.
-    args = get_args()
-
     # Assume everything is okay.
     okay = True
 
-    # For each file/directory we've been asked to check...
-    for to_check in args.to_check:
+    try:
 
-        # Try and fully resolve the path.
-        try:
-            to_check = Path( to_check ).resolve()
-        except FileNotFoundError:
-            to_check = Path( to_check )
+        # Get the arguments.
+        args = get_args()
 
-        # If it's simply a file...
-        if to_check.is_file():
-            # ...just check it.
-            if not check( args, to_check ):
-                okay = False
-        elif to_check.is_dir():
-            # It's a directory, let's go recursive...
-            if not recursive_check( args, to_check ):
-                okay = False
-        else:
-            # Not a file or directory!
-            ignoring( args, to_check, "Not a file or directory" )
+        # For each file/directory we've been asked to check...
+        for to_check in args.to_check:
+
+            # Try and fully resolve the path.
+            try:
+                to_check = Path( to_check ).resolve()
+            except FileNotFoundError:
+                to_check = Path( to_check )
+
+            # If it's simply a file...
+            if to_check.is_file():
+                # ...just check it.
+                if not check( args, to_check ):
+                    okay = False
+            elif to_check.is_dir():
+                # It's a directory, let's go recursive...
+                if not recursive_check( args, to_check ):
+                    okay = False
+            else:
+                # Not a file or directory!
+                ignoring( args, to_check, "Not a file or directory" )
+
+    except KeyboardInterrupt:
+        print( "\nInterrupted by user", file=sys.stderr )
+        okay = False
 
     # Report on what was found.
     return okay
