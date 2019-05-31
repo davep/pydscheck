@@ -230,15 +230,22 @@ def should_check( candidate ):
 
 ##############################################################################
 # Remove ignorable directories.
-def remove_ignorable_dirs( args, dirs ):
+def remove_ignorable_dirs( args, root, dirs ):
     """Remove ignorable directories from the given list.
 
+    :param Namespace args: The command line arguments.
+    :param str root: The root directory we're looking in.
     :param list dirs: The list of directories to be looked at.
     """
     for ignorable in IGNORABLE_DIRS + ( args.ignore or [] ):
         try:
             dirs.remove( ignorable )
-            verbose( args, "Skipping content of {}".format( ignorable ) )
+            verbose(
+                args,
+                "Skipping content of {}/".format(
+                    short( Path( root ).resolve() / ignorable )
+                )
+            )
         except ValueError:
             pass
 
@@ -260,7 +267,7 @@ def recursive_check( args, to_check ):
     for root, dirs, files in os.walk( str( to_check ) ):
 
         # Remove directories we should ignore.
-        remove_ignorable_dirs( args, dirs )
+        remove_ignorable_dirs( args, root, dirs )
 
         # For each file we've been given...
         for file in files:
