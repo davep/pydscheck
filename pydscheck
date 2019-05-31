@@ -28,7 +28,7 @@ IGNORABLE_DIRS = [ ".git", ".venv", "__pycache__" ]
 def short( path ):
     """Get a short name for the path that makes sense.
 
-    :param PosixPath path: The path to get a short name for.
+    :param pathlib.Path path: The path to get a short name for.
     :returns: As short a name as possible for the given path.
     :rtype: str
     """
@@ -66,7 +66,7 @@ def line_count( doc_string ):
 def check_doc_string( module, node ):
     """Check the doc string of the given node.
 
-    :param PosixPath module: The path of the module we're checking.
+    :param pathlib.Path module: The path of the module we're checking.
     :param AST node: The ast node to check.
     :returns: A flag to say if the doc string looked okay.
     :rtype: bool
@@ -116,7 +116,7 @@ def check_doc_string( module, node ):
 def ignoring( args, thing, reason ):
     """Report an ignored source.
 
-    :param Namespace args: The command line arguments.
+    :param argparse.Namespace args: The command line arguments.
     :param str thing: The thing we're ignoring.
     :param str reason: The reason we're ignoring it.
     """
@@ -128,7 +128,7 @@ def ignoring( args, thing, reason ):
 def verbose( args, feedback ):
     """Print output if we're in verbose mode.
 
-    :param Namespace args: The command line arguments.
+    :param argparse.Namespace args: The command line arguments.
     :param str feedback: The feedback to print
     """
     if args.verbose:
@@ -139,8 +139,8 @@ def verbose( args, feedback ):
 def check( args, file ):
     """Check the doc strings in the given file.
 
-    :param Namespace args: The command line arguments.
-    :param PosixPath file: The name of the file to check.
+    :param argparse.Namespace args: The command line arguments.
+    :param pathlib.Path file: The name of the file to check.
     :returns: A flag to say if the file looked okay.
     :rtype: bool
     """
@@ -176,7 +176,7 @@ def check( args, file ):
 def is_hidden( candidate ):
     """Does the given file look hidden in some way?
 
-    :param PosixPath candidate: The candidate file.
+    :param pathlib.Path candidate: The candidate file.
     :returns: A flag to say if the file looks hidden.
     :rtype: bool
     """
@@ -187,7 +187,7 @@ def is_hidden( candidate ):
 def shebang_python( candidate ):
     """Does a given file look like a Python shebang file?
 
-    :param PosixPath candidate: The candidate file.
+    :param pathlib.Path candidate: The candidate file.
     :returns: A flag to say if the file looks like it might be Python code.
     :rtype: bool
     """
@@ -203,7 +203,7 @@ def shebang_python( candidate ):
 def is_python( candidate ):
     """Does a given file look like it might be Python source?
 
-    :param PosixPath candidate: The candidate file.
+    :param pathlib.Path candidate: The candidate file.
     :returns: A flag to say if the file looks like it might be Python code.
     :rtype: bool
     """
@@ -219,7 +219,7 @@ def is_python( candidate ):
 def should_check( candidate ):
     """Should we check the given file?
 
-    :param PosixPath candidate: The candidate file.
+    :param pathlib.Path candidate: The candidate file.
     :returns: A flag to say if we should check the file or not.
     :rtype: bool
 
@@ -233,7 +233,7 @@ def should_check( candidate ):
 def remove_ignorable_dirs( args, root, dirs ):
     """Remove ignorable directories from the given list.
 
-    :param Namespace args: The command line arguments.
+    :param argparse.Namespace args: The command line arguments.
     :param str root: The root directory we're looking in.
     :param list dirs: The list of directories to be looked at.
     """
@@ -254,8 +254,8 @@ def remove_ignorable_dirs( args, root, dirs ):
 def recursive_check( args, to_check ):
     """Perform a recursive check of Python files.
 
-    :param Namespace args: The command line arguments.
-    :param PosixPath to_check: The path to check.
+    :param argparse.Namespace args: The command line arguments.
+    :param pathlib.Path to_check: The path to check.
     :returns: A flag to say if any issues were found.
     :rtype: bool
     """
@@ -292,7 +292,7 @@ def get_args():
     """Parse the command line parameters.
 
     :returns: The parsed command line arguments.
-    :rtype: Namespace
+    :rtype: argparse.Namespace
     """
 
     # Create the argument parser object.
