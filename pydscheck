@@ -139,7 +139,12 @@ def check_doc_string( args, module, node ):
     doc_string = ast.get_docstring( node, clean=False )
 
     def report( error ):
-        """Report the given error."""
+        """Report the given error.
+
+        :param str error: The error to report.
+        :returns: False
+        :rtype: bool
+        """
         print( "{}: {}: {} ({})".format( short( module ), error, name, lineno ) )
         return False
 
