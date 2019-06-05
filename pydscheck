@@ -79,6 +79,10 @@ def extra_check_doc_string( doc_string, report ):
     if ":returns:" in doc_string and ":rtype:" not in doc_string:
         okay = report( "No \":rtype:\" for \":returns:\"" )
 
+    # If there's a raises, it shouldn't be without a class to raise.
+    if ":raises:" in doc_string:
+        okay = report( "No class for \":raises:\"." )
+
     # Return what we found.
     return okay
 
