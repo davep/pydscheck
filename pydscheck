@@ -62,10 +62,27 @@ def line_count( doc_string ):
     return len( doc_string.splitlines() )
 
 ##############################################################################
+# Does it look like the function returns something?
+def returns_something( node ):
+    """Does the given node have a return statement that returns something?
+
+    :param AST node: The ast node to check.
+    :returns: True if a value is returned, False if not.
+    :rtype: bool
+
+    This function walks the given node and looks to see if there's a Return
+    statement, and if it returns an actual value.
+    """
+    return any(
+        item.value is not None for item in ast.walk( node ) if isinstance( item, ast.Return )
+    ) if isinstance( node, ( ast.FunctionDef, ast.AsyncFunctionDef ) ) else False
+
+##############################################################################
 # Perform some extra-strong checks on the given doc-string.
-def extra_check_doc_string( doc_string, report ):
+def extra_check_doc_string( node, doc_string, report ):
     """Perform extra-strong checks on the doc-string.
 
+    :param AST node: The ast node to check.
     :param str doc_string: The doc string to check.
     :param callable report: The function for reporting any problem.
     :returns: True if the doc string was okay, False if not.
@@ -74,6 +91,11 @@ def extra_check_doc_string( doc_string, report ):
 
     # Assume we're all good.
     okay = True
+
+    # If there's a return statement that actually returns something, and
+    # there isn't evidence of a return in the doc-string.
+    if returns_something( node ) and ":returns:" not in doc_string:
+        okay = report( "No \":returns:\" to match a returned value" )
 
     # If there's a return, there should be an rtype.
     if ":returns:" in doc_string and ":rtype:" not in doc_string:
@@ -137,7 +159,7 @@ def check_doc_string( args, module, node ):
     # If it's okay so far, and we should do extra checks...
     if okay and args.extra_checks:
         # ...perform extra-strong checks.
-        okay = extra_check_doc_string( doc_string, report )
+        okay = extra_check_doc_string( node, doc_string, report )
 
     # Return what we found.
     return okay
