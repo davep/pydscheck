@@ -87,7 +87,7 @@ def extra_check_doc_string( doc_string, report ):
 def check_doc_string( args, module, node ):
     """Check the doc string of the given node.
 
-    :param argparse.Namespace: The command line arguments.
+    :param argparse.Namespace args: The command line arguments.
     :param pathlib.Path module: The path of the module we're checking.
     :param AST node: The ast node to check.
     :returns: A flag to say if the doc string looked okay.
