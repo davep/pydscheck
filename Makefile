@@ -21,7 +21,7 @@ lint:				# Run pylint over the code.
 
 .PHONY: dscheck
 dscheck:			# Run the tool over itself.
-	$(run) ./pydscheck
+	$(run) ./pydscheck --extra-checks
 
 .PHONY: help
 help:				# Display this help
