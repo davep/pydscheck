@@ -62,6 +62,30 @@ def line_count( doc_string ):
     return len( doc_string.splitlines() )
 
 ##############################################################################
+# Does the given node look like an actual function?
+def looks_like_a_function( node ):
+    """Does a given node look like a normal function?
+
+    :param AST node: The ast node to check.
+    :returns: True if the node looks like a function, False if not.
+    :rtype: bool
+
+    This function is designed to report False for functions that have a
+    property decorator. Properties would not normally talk about what they
+    return, but what their type is.
+    """
+    return (
+        # If it's some sort of function...
+        isinstance( node, ( ast.FunctionDef, ast.AsyncFunctionDef ) )
+        and
+        # ...it's not actually a property.
+        not any(
+            decorator.id == "property" for decorator in node.decorator_list
+            if isinstance( decorator, ast.Name )
+        )
+    )
+
+##############################################################################
 # Does it look like the function returns something?
 def returns_something( node ):
     """Does the given node have a return statement that returns something?
@@ -75,7 +99,7 @@ def returns_something( node ):
     """
     return any(
         item.value is not None for item in ast.walk( node ) if isinstance( item, ast.Return )
-    ) if isinstance( node, ( ast.FunctionDef, ast.AsyncFunctionDef ) ) else False
+    ) if looks_like_a_function( node ) else False
 
 ##############################################################################
 # Perform some extra-strong checks on the given doc-string.
