@@ -76,8 +76,9 @@ def looks_like_a_function( node ):
     """
     return (
         # If it's some sort of function...
-        isinstance( node, ( ast.FunctionDef, ast.AsyncFunctionDef ) )
-        and
+        isinstance( node, ( ast.FunctionDef, ast.AsyncFunctionDef ) ) and
+        # ...and it doesn't look like an internal...
+        not node.name.startswith( "_" ) and
         # ...it's not actually a property.
         not any(
             decorator.id == "property" for decorator in node.decorator_list
