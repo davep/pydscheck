@@ -62,10 +62,32 @@ def line_count( doc_string ):
     return len( doc_string.splitlines() )
 
 ##############################################################################
+# Perform some extra-strong checks on the given doc-string.
+def extra_check_doc_string( doc_string, report ):
+    """Perform extra-strong checks on the doc-string.
+
+    :param str doc_string: The doc string to check.
+    :param callable report: The function for reporting any problem.
+    :returns: True if the doc string was okay, False if not.
+    :rtype: bool
+    """
+
+    # Assume we're all good.
+    okay = True
+
+    # If there's a return, there should be an rtype.
+    if ":returns:" in doc_string and ":rtype:" not in doc_string:
+        okay = report( "No \":rtype:\" for \":returns:\"" )
+
+    # Return what we found.
+    return okay
+
+##############################################################################
 # Check the doc string of the given node
-def check_doc_string( module, node ):
+def check_doc_string( args, module, node ):
     """Check the doc string of the given node.
 
+    :param argparse.Namespace: The command line arguments.
     :param pathlib.Path module: The path of the module we're checking.
     :param AST node: The ast node to check.
     :returns: A flag to say if the doc string looked okay.
@@ -107,6 +129,11 @@ def check_doc_string( module, node ):
                 okay = report( "Bad doc string ending" )
     else:
         okay = report( "Missing doc string" )
+
+    # If it's okay so far, and we should do extra checks...
+    if okay and args.extra_checks:
+        # ...perform extra-strong checks.
+        okay = extra_check_doc_string( doc_string, report )
 
     # Return what we found.
     return okay
@@ -157,12 +184,12 @@ def check( args, file ):
         module = ast.parse( file.open( "rb" ).read() )
 
         # Check the module itself.
-        check_doc_string( file, module )
+        check_doc_string( args, file, module )
 
         # For each thing in the module that can have a doc string...
         for node in module_docable_parts( module.body ):
             # ...check its doc string.
-            if not check_doc_string( file, node ):
+            if not check_doc_string( args, file, node ):
                 okay = False
 
     except SyntaxError:
@@ -299,6 +326,13 @@ def get_args():
     parser = argparse.ArgumentParser(
         description = "Python doc string checker",
         epilog      = "v{}".format( __version__ )
+    )
+
+    # Add --extra-checks
+    parser.add_argument(
+        "-e", "--extra-checks",
+        help   = "Perform extra checks on the doc string.",
+        action = "store_true"
     )
 
     # Add --ignore
