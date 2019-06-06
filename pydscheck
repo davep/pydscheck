@@ -129,14 +129,18 @@ def returns_something( node ):
     )
 
 ##############################################################################
-# Regular expression for finding :param: lines with no type.
+# Regular expressions for finding lines with no types.
 PARAM_CHECK_RE = re.compile( r"^\s+:param\s([^\s]+):" )
+IVAR_CHECK_RE  = re.compile( r"^\s+:ivar\s([^\s]+):" )
 
 ##############################################################################
 # See that all declared parameters have a type.
-def check_for_param_types( doc_string, report ):
+def check_for_types( source, finder, typer, doc_string, report ):
     """Check that all listed parameters have a type.
 
+    :param str source: The name of the thing we're going to look at.
+    :param Pattern finder: Regular expression for finding a line to check.
+    :param str typer: The token that can be used to later-declare a type.
     :param str doc_string: The doc string to check.
     :param callable report: The function for reporting any problem.
     :returns: True if the doc string was okay, False if not.
@@ -149,22 +153,20 @@ def check_for_param_types( doc_string, report ):
     # For each line in the doc string...
     for line in doc_string.splitlines():
 
-        # See if it's a parameter line.
-        found_param = PARAM_CHECK_RE.match( line )
+        # See if something we should look at.
+        found = finder.match( line )
 
         # If it is...
-        if found_param:
+        if found:
 
-            # ...extract the parameter name.
-            param_name, *_ = found_param.groups()
+            # ...extract the name.
+            name, *_ = found.groups()
 
             # Now, if there isn't a type declaration for it elsewhere in the
             # doc string...
-            if ":type {}:".format( param_name ) not in doc_string:
+            if ":{} {}:".format( typer, name ) not in doc_string:
                 # ...complain
-                okay = report( "Missing :param: type for \"{}\"".format(
-                    param_name
-                ) )
+                okay = report( "Missing :{}: type for \"{}\"".format( source, name ) )
 
     # Return what we found.
     return okay
@@ -185,7 +187,10 @@ def extra_check_doc_string( node, doc_string, report ):
     okay = True
 
     # Try and be sure that all parameters have some sort of type.
-    okay = check_for_param_types( doc_string, report )
+    okay = check_for_types( "param", PARAM_CHECK_RE, "type", doc_string, report )
+
+    # Try and be sure that all instance variables have some sort of type.
+    okay = check_for_types( "ivar", IVAR_CHECK_RE, "vartype", doc_string, report )
 
     # If there's a return statement that actually returns something, and
     # there isn't evidence of a return in the doc-string.
