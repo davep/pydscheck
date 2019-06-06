@@ -93,7 +93,8 @@ def is_value_return( node ):
 
     :param AST node: The ast node to check.
     :returns: True if a value is returned, False if not.
-    :rtype: bool"""
+    :rtype: bool
+    """
 
     # Is it a return statement?
     if isinstance( node, ast.Return ):
