@@ -87,6 +87,30 @@ def looks_like_a_function( node ):
     )
 
 ##############################################################################
+# Does the given node look like it returns a value?
+def is_value_return( node ):
+    """Does the given node look like it returns a value?
+
+    :param AST node: The ast node to check.
+    :returns: True if a value is returned, False if not.
+    :rtype: bool"""
+
+    # Is it a return statement?
+    if isinstance( node, ast.Return ):
+        # If so, does it return a value?
+        return node.value is not None
+
+    # Failing that, if it's not a function...
+    if not isinstance( node, ( ast.FunctionDef, ast.AsyncFunctionDef ) ):
+        # and if it has a body to look inside of...
+        if hasattr( node, "body" ):
+            # ...does anything in the body look like a return?
+            return any( is_value_return( child ) for child in node.body )
+
+    # Not a return of a value.
+    return False
+
+##############################################################################
 # Does it look like the function returns something?
 def returns_something( node ):
     """Does the given node have a return statement that returns something?
@@ -98,9 +122,9 @@ def returns_something( node ):
     This function walks the given node and looks to see if there's a Return
     statement, and if it returns an actual value.
     """
-    return any(
-        item.value is not None for item in ast.walk( node ) if isinstance( item, ast.Return )
-    ) if looks_like_a_function( node ) else False
+    return looks_like_a_function( node ) and any(
+        is_value_return( child ) for child in node.body
+    )
 
 ##############################################################################
 # Perform some extra-strong checks on the given doc-string.
