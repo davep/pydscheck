@@ -14,6 +14,7 @@ __version__    = "1.3.1"
 ##############################################################################
 # Imports.
 import os
+import re
 import ast
 import sys
 import argparse
@@ -128,6 +129,47 @@ def returns_something( node ):
     )
 
 ##############################################################################
+# Regular expression for finding :param: lines with no type.
+PARAM_CHECK_RE = re.compile( r"^\s+:param\s([^\s]+):" )
+
+##############################################################################
+# See that all declared parameters have a type.
+def check_for_param_types( doc_string, report ):
+    """Check that all listed parameters have a type.
+
+    :param str doc_string: The doc string to check.
+    :param callable report: The function for reporting any problem.
+    :returns: True if the doc string was okay, False if not.
+    :rtype: bool
+    """
+
+    # Assume everything will be okay.
+    okay = True
+
+    # For each line in the doc string...
+    for line in doc_string.splitlines():
+
+        # See if it's a parameter line.
+        found_param = PARAM_CHECK_RE.match( line )
+
+        # If it is...
+        if found_param:
+
+            # ...extract the parameter name.
+            param_name, *_ = found_param.groups()
+
+            # Now, if there isn't a type declaration for it elsewhere in the
+            # doc string...
+            if ":type {}:".format( param_name ) not in doc_string:
+                # ...complain
+                okay = report( "Missing :param: type for \"{}\"".format(
+                    param_name
+                ) )
+
+    # Return what we found.
+    return okay
+
+##############################################################################
 # Perform some extra-strong checks on the given doc-string.
 def extra_check_doc_string( node, doc_string, report ):
     """Perform extra-strong checks on the doc-string.
@@ -141,6 +183,9 @@ def extra_check_doc_string( node, doc_string, report ):
 
     # Assume we're all good.
     okay = True
+
+    # Try and be sure that all parameters have some sort of type.
+    okay = check_for_param_types( doc_string, report )
 
     # If there's a return statement that actually returns something, and
     # there isn't evidence of a return in the doc-string.
