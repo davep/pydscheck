@@ -44,7 +44,8 @@ def module_docable_parts( module ):
     """Get nodes that can have doc strings.
 
     :param Module module: The module to pull nodes from.
-    :yields: An item whose doc string should be checked.
+    :returns: A generator of items that might have a doc string.
+    :rtype: AST
     """
     for node in module:
         for item in ast.walk( node ):
