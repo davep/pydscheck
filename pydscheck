@@ -153,7 +153,7 @@ def check_for_types( source, finder, typer, doc_string, report ):
     # For each line in the doc string...
     for line in doc_string.splitlines():
 
-        # See if something we should look at.
+        # See if it's something we should look at.
         found = finder.match( line )
 
         # If it is...
@@ -320,8 +320,7 @@ def check( args, file ):
         # For each thing in the module that can have a doc string...
         for node in module_docable_parts( module.body ):
             # ...check its doc string.
-            if not check_doc_string( args, file, node ):
-                okay = False
+            okay = check_doc_string( args, file, node ) and okay
 
     except SyntaxError:
         ignoring( args, file, "Syntax error" )
@@ -436,8 +435,7 @@ def recursive_check( args, to_check ):
             # If we should look at the candidate...
             if should_check( candidate ):
                 # ...check it.
-                if not check( args, candidate ):
-                    okay = False
+                okay = check( args, candidate ) and okay;
             else:
                 verbose( args, "Skipping {}".format( short( candidate ) ) )
 
@@ -536,12 +534,13 @@ def main():
             # If it's simply a file...
             if to_check.is_file():
                 # ...just check it.
-                if not check( args, to_check ):
-                    okay = False
+                okay = check( args, to_check ) and okay
+
+            # If it's a directory...
             elif to_check.is_dir():
-                # It's a directory, let's go recursive...
-                if not recursive_check( args, to_check ):
-                    okay = False
+                # ...let's go recursive...
+                okay = recursive_check( args, to_check ) and okay
+
             else:
                 # Not a file or directory!
                 ignoring( args, to_check, "Not a file or directory" )
