@@ -88,6 +88,31 @@ def looks_like_a_function( node ):
     )
 
 ##############################################################################
+# Does the given node look like it yields?
+def is_yield( node ):
+    """Does the given node look like it yields?
+
+    :param AST node: The ast node to check.
+    :returns: True if the node yields, False if not.
+    :rtype: bool
+    """
+
+    # Yield?
+    if isinstance( node, ast.Expr ) and isinstance( node.value, ( ast.Yield, ast.YieldFrom ) ):
+        # It is!
+        return True
+
+    # Failing that, if it's not a function...
+    if not isinstance( node, ( ast.FunctionDef, ast.AsyncFunctionDef ) ):
+        # and if it has a body to look inside of...
+        if hasattr( node, "body" ):
+            # ...does anything in the body look like a yield?
+            return any( is_yield( child ) for child in node.body )
+
+    # Not a yield.
+    return False
+
+##############################################################################
 # Does the given node look like it returns a value?
 def is_value_return( node ):
     """Does the given node look like it returns a value?
@@ -114,10 +139,11 @@ def is_value_return( node ):
 
 ##############################################################################
 # Does it look like the function returns something?
-def returns_something( node ):
+def returns_something( node, checker ):
     """Does the given node have a return statement that returns something?
 
     :param AST node: The ast node to check.
+    :param callable checker: The function to check for returned values.
     :returns: True if a value is returned, False if not.
     :rtype: bool
 
@@ -125,7 +151,7 @@ def returns_something( node ):
     statement, and if it returns an actual value.
     """
     return looks_like_a_function( node ) and any(
-        is_value_return( child ) for child in node.body
+        checker( child ) for child in node.body
     )
 
 ##############################################################################
@@ -189,10 +215,16 @@ def extra_check_doc_string( node, doc_string, report ):
     # Try and be sure that all instance variables have some sort of type.
     okay = check_for_types( "ivar", IVAR_CHECK_RE, "vartype", doc_string, report ) and okay
 
-    # If there's a return statement that actually returns something, and
-    # there isn't evidence of a return in the doc-string.
-    if returns_something( node ) and ":returns:" not in doc_string:
-        okay = report( "No \":returns:\" to match a returned value" )
+    # If there's no return information in the doc string...
+    if ":returns:" not in doc_string:
+
+        # ...see if a value is returned and complain.
+        if returns_something( node, is_value_return ):
+            okay = report( "No \":returns:\" to match a returned value" )
+
+        # Perhaps the code yields a value? If so, also complain.
+        if returns_something( node, is_yield ):
+            okay = report ( "No \":returns:\" to match a yielded value" )
 
     # If there's a return, there should be an rtype.
     if ":returns:" in doc_string and ":rtype:" not in doc_string:
