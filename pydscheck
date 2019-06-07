@@ -190,7 +190,7 @@ def extra_check_doc_string( node, doc_string, report ):
     okay = check_for_types( "param", PARAM_CHECK_RE, "type", doc_string, report )
 
     # Try and be sure that all instance variables have some sort of type.
-    okay = check_for_types( "ivar", IVAR_CHECK_RE, "vartype", doc_string, report )
+    okay = check_for_types( "ivar", IVAR_CHECK_RE, "vartype", doc_string, report ) and okay
 
     # If there's a return statement that actually returns something, and
     # there isn't evidence of a return in the doc-string.
