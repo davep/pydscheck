@@ -225,7 +225,7 @@ def extra_check_doc_string( node, doc_string, report ):
 
         # Perhaps the code yields? If so, also complain.
         if returns_something( node, yields ):
-            okay = report ( "No \":returns:\" to match a yielded value" )
+            okay = report( "No \":returns:\" to match a yielded value" )
 
     # If there's a return, there should be an rtype.
     if ":returns:" in doc_string and ":rtype:" not in doc_string:
