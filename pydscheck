@@ -89,7 +89,7 @@ def looks_like_a_function( node ):
 
 ##############################################################################
 # Does the given node look like it yields?
-def is_yield( node ):
+def yields( node ):
     """Does the given node look like it yields?
 
     :param AST node: The ast node to check.
@@ -107,14 +107,14 @@ def is_yield( node ):
         # and if it has a body to look inside of...
         if hasattr( node, "body" ):
             # ...does anything in the body look like a yield?
-            return any( is_yield( child ) for child in node.body )
+            return any( yields( child ) for child in node.body )
 
     # Not a yield.
     return False
 
 ##############################################################################
 # Does the given node look like it returns a value?
-def is_value_return( node ):
+def returns_value( node ):
     """Does the given node look like it returns a value?
 
     :param AST node: The ast node to check.
@@ -132,7 +132,7 @@ def is_value_return( node ):
         # and if it has a body to look inside of...
         if hasattr( node, "body" ):
             # ...does anything in the body look like a return?
-            return any( is_value_return( child ) for child in node.body )
+            return any( returns_value( child ) for child in node.body )
 
     # Not a return of a value.
     return False
@@ -219,11 +219,11 @@ def extra_check_doc_string( node, doc_string, report ):
     if ":returns:" not in doc_string:
 
         # ...see if a value is returned and complain.
-        if returns_something( node, is_value_return ):
+        if returns_something( node, returns_value ):
             okay = report( "No \":returns:\" to match a returned value" )
 
-        # Perhaps the code yields a value? If so, also complain.
-        if returns_something( node, is_yield ):
+        # Perhaps the code yields? If so, also complain.
+        if returns_something( node, yields ):
             okay = report ( "No \":returns:\" to match a yielded value" )
 
     # If there's a return, there should be an rtype.
