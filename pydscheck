@@ -341,7 +341,8 @@ def check( args, file ):
     try:
 
         # Load and parse the file.
-        module = ast.parse( file.open( "rb" ).read() )
+        with file.open( "rb" ) as source:
+            module = ast.parse( source.read() )
 
         # Check the module itself.
         check_doc_string( args, file, module )
