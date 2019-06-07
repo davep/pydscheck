@@ -258,10 +258,10 @@ def check_doc_string( args, module, node ):
     else:
         okay = report( "Missing doc string" )
 
-    # If it's okay so far, and we should do extra checks...
-    if okay and args.extra_checks:
+    # If we should do extra checks...
+    if args.extra_checks:
         # ...perform extra-strong checks.
-        okay = extra_check_doc_string( node, doc_string, report )
+        okay = extra_check_doc_string( node, doc_string, report ) and okay
 
     # Return what we found.
     return okay
