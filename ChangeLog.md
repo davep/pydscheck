@@ -1,5 +1,12 @@
 # pydscheck ChangeLog
 
+## v1.5.0
+
+**Released: WiP**
+
+Added support for treating a `yield` like a `return` when it comes to
+checking for a `:returns:` in the doc string of a function.
+
 ## v1.4.0
 
 **Released: 2019-06-06**
