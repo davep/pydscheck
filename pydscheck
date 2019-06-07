@@ -259,7 +259,7 @@ def check_doc_string( args, module, node ):
         okay = report( "Missing doc string" )
 
     # If we should do extra checks...
-    if args.extra_checks:
+    if doc_string and args.extra_checks:
         # ...perform extra-strong checks.
         okay = extra_check_doc_string( node, doc_string, report ) and okay
 
