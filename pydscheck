@@ -183,9 +183,6 @@ def extra_check_doc_string( node, doc_string, report ):
     :rtype: bool
     """
 
-    # Assume we're all good.
-    okay = True
-
     # Try and be sure that all parameters have some sort of type.
     okay = check_for_types( "param", PARAM_CHECK_RE, "type", doc_string, report )
 
