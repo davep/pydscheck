@@ -89,6 +89,25 @@ def looks_like_a_function( node ):
     )
 
 ##############################################################################
+# Does the given node look like a property?
+def looks_like_a_property( node ):
+    """Does a given node look like a property?
+
+    :param AST node: The ast node to check.
+    :returns: True if the node looks like a property, False if not.
+    :rtype: bool
+    """
+    return (
+        # If it's some sort of function...
+        isinstance( node, ( ast.FunctionDef, ast.AsyncFunctionDef ) ) and
+        # ...it's actually a property.
+        any(
+            decorator.id == "property" for decorator in node.decorator_list
+            if isinstance( decorator, ast.Name )
+        )
+    )
+
+##############################################################################
 # Does the given node look like it yields?
 def yields( node ):
     """Does the given node look like it yields?
@@ -234,6 +253,10 @@ def extra_check_doc_string( node, doc_string, report ):
     # If there's a raises, it shouldn't be without a class to raise.
     if ":raises:" in doc_string:
         okay = report( "No class for \":raises:\"" )
+
+    # If the node looks like a property and there's no type given...
+    if looks_like_a_property( node ) and ":type:" not in doc_string:
+        okay = report( "Property has no \":type:\"" )
 
     # Return what we found.
     return okay
