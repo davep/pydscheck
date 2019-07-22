@@ -249,7 +249,7 @@ def check_all_params_mentioned( node, doc_string, report ):
         if not ignore_param( arg.arg ):
             # ...look to see if it's mentioned as a param in the doc string
             # somewhere. If it isn't...
-            if not re.search( r":param\s+[^\s]*\s*{}:".format( arg.arg ), doc_string ):
+            if not re.search( r":param\s+.*?{}:".format( arg.arg ), doc_string ):
                 # ...complain about that.
                 okay = report( "No :param: documentation for \"{}\"".format( arg.arg ) )
 
