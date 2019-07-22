@@ -218,6 +218,45 @@ def check_for_types( source, finder, typer, doc_string, report ):
     return okay
 
 ##############################################################################
+# Check that all function parameters get a mention.
+def check_all_params_mentioned( node, doc_string, report ):
+    """Check that every parameter of the function gets a mention.
+
+    :param AST node: The ast node to check.
+    :param str doc_string: The doc string to check.
+    :param callable report: The function for reporting any problem.
+    :returns: True if all params seem to be documented, False if not.
+    :rtype: bool
+    """
+
+    def ignore_param( param ):
+        """Should we ignore the parameter?
+
+        :param str param: The name of the parameter.
+        :returns: A flag to say if we should ignore it.
+        :rtype: bool
+        """
+        return param.startswith( "_" ) or param in [
+            "self", "cls"
+        ]
+
+    # Assume it's all okay.
+    okay = True
+
+    # For each argument in the argument list...
+    for arg in node.args.args:
+        # ...if it's not one we should ignore...
+        if not ignore_param( arg.arg ):
+            # ...look to see if it's mentioned as a param in the doc string
+            # somewhere. If it isn't...
+            if not re.search( r":param\s+[^\s]*\s*{}:".format( arg.arg ), doc_string ):
+                # ...complain about that.
+                okay = report( "No :param: documentation for \"{}\"".format( arg.arg ) )
+
+    # Return what we found.
+    return okay
+
+##############################################################################
 # Perform some extra-strong checks on the given doc-string.
 def extra_check_doc_string( node, doc_string, report ):
     """Perform extra-strong checks on the doc-string.
@@ -234,6 +273,11 @@ def extra_check_doc_string( node, doc_string, report ):
 
     # Try and be sure that all instance variables have some sort of type.
     okay = check_for_types( "ivar", IVAR_CHECK_RE, "vartype", doc_string, report ) and okay
+
+    # If it's a function...
+    if looks_like_a_function( node ):
+        # ...check that all the parameters get mentioned.
+        okay = check_all_params_mentioned( node, doc_string, report ) and okay
 
     # If there's no return information in the doc string...
     if ":returns:" not in doc_string:
