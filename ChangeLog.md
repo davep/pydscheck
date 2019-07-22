@@ -1,5 +1,11 @@
 # pydscheck ChangeLog
 
+## v1.6.0
+
+**Released: 2019-06-19**
+
+Added a test that properties have a `:type:`.
+
 ## v1.5.0
 
 **Released: 2019-06-07**
