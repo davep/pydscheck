@@ -1,5 +1,12 @@
 # pydscheck ChangeLog
 
+## v1.7.0
+
+**Released: 2019-07-22**
+
+Added an extended test that checks if all of the named parameters for a
+function are documented in the doc string.
+
 ## v1.6.0
 
 **Released: 2019-06-19**
