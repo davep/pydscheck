@@ -533,7 +533,7 @@ def recursive_check( args, to_check ):
             # If we should look at the candidate...
             if should_check( candidate ):
                 # ...check it.
-                okay = check( args, candidate ) and okay;
+                okay = check( args, candidate ) and okay
             else:
                 verbose( args, "Skipping {}".format( short( candidate ) ) )
 
