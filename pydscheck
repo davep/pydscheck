@@ -519,7 +519,7 @@ def recursive_check( args, to_check ):
     okay = True
 
     # Let's walk the whole tree from the given location.
-    for root, dirs, files in os.walk( str( to_check ) ):
+    for root, dirs, files in os.walk( to_check ):
 
         # Remove directories we should ignore.
         remove_ignorable_dirs( args, root, dirs )
