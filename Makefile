@@ -3,6 +3,8 @@
 run  = pipenv run
 lint = $(run) pylint
 
+##############################################################################
+# Setup/update packages the system requires.
 .PHONY: setup
 setup:				# Install development/tool dependencies
 	pipenv sync --dev
@@ -24,6 +26,8 @@ depsupdate:			# Update all dependencies
 depsshow:			# Show the dependency graph
 	pipenv graph
 
+##############################################################################
+# Checking/testing/linting/etc.
 .PHONY: lint
 lint:				# Run pylint over the code.
 	$(lint) pydscheck
@@ -32,6 +36,8 @@ lint:				# Run pylint over the code.
 dscheck:			# Run the tool over itself.
 	$(run) ./pydscheck --extra-checks
 
+##############################################################################
+# Utility.
 .PHONY: help
 help:				# Display this help
 	@grep -Eh "^[a-z]+:.+# " $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.+# "}; {printf "%-20s %s\n", $$1, $$2}'
