@@ -210,9 +210,9 @@ def check_for_types( source, finder, typer, doc_string, report ):
 
             # Now, if there isn't a type declaration for it elsewhere in the
             # doc string...
-            if ":{} {}:".format( typer, name ) not in doc_string:
+            if f":{typer} {name}:" not in doc_string:
                 # ...complain
-                okay = report( "Missing :{}: type for \"{}\"".format( source, name ) )
+                okay = report( f"Missing :{source}: type for \"{name}\"" )
 
     # Return what we found.
     return okay
@@ -249,9 +249,9 @@ def check_all_params_mentioned( node, doc_string, report ):
         if not ignore_param( arg.arg ):
             # ...look to see if it's mentioned as a param in the doc string
             # somewhere. If it isn't...
-            if not re.search( r":param\s+.*?{}:".format( arg.arg ), doc_string ):
+            if not re.search( rf":param\s+.*?{arg.arg}:", doc_string ):
                 # ...complain about that.
-                okay = report( "No :param: documentation for \"{}\"".format( arg.arg ) )
+                okay = report( f"No :param: documentation for \"{arg.arg}\"" )
 
     # Return what we found.
     return okay
@@ -342,7 +342,7 @@ def check_doc_string( args, module, node ):
         :returns: False
         :rtype: bool
         """
-        print( "{}: {}: {} ({})".format( short( module ), error, name, lineno ) )
+        print( f"{short( module )}: {error}: {name} ({lineno})" )
         return False
 
     # If we found one...
@@ -376,7 +376,7 @@ def ignoring( args, thing, reason ):
     :param str reason: The reason we're ignoring it.
     """
     if not args.quiet_ignores:
-        print( "{}: {}, ignoring.".format( thing, reason ) )
+        print( f"{thing}: {reason}, ignoring." )
 
 ##############################################################################
 # Produce verbose output.
@@ -404,7 +404,7 @@ def check( args, file ):
     okay = True
 
     # Feedback on what we're checking.
-    verbose( args, "Checking {}".format( short( file ) ) )
+    verbose( args, f"Checking {short( file )}" )
 
     try:
 
@@ -497,9 +497,7 @@ def remove_ignorable_dirs( args, root, dirs ):
             dirs.remove( ignorable )
             verbose(
                 args,
-                "Skipping content of {}/".format(
-                    short( Path( root ).resolve() / ignorable )
-                )
+                f"Skipping content of {short( Path( root ).resolve() / ignorable )}/"
             )
         except ValueError:
             pass
@@ -535,7 +533,7 @@ def recursive_check( args, to_check ):
                 # ...check it.
                 okay = check( args, candidate ) and okay
             else:
-                verbose( args, "Skipping {}".format( short( candidate ) ) )
+                verbose( args, f"Skipping {short( candidate )}" )
 
     # Report if any issues where found.
     return okay
@@ -552,7 +550,7 @@ def get_args():
     # Create the argument parser object.
     parser = argparse.ArgumentParser(
         description = "Python doc string checker",
-        epilog      = "v{}".format( __version__ )
+        epilog      = f"v{__version__}"
     )
 
     # Add --extra-checks
@@ -588,7 +586,7 @@ def get_args():
         "-V", "--version",
         help    = "Show version information.",
         action  = "version",
-        version = "%(prog)s v{}".format( __version__ )
+        version = f"%(prog)s v{__version__}"
     )
 
     # The remainder is the paths/files to check.
