@@ -1,5 +1,11 @@
 # pydscheck ChangeLog
 
+## v1.7.x
+
+**Released: WiP**
+
+Made Python 3.7 the base required Python version for the tool.
+
 ## v1.7.0
 
 **Released: 2019-07-22**
