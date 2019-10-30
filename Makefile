@@ -4,6 +4,10 @@ run  = pipenv run
 lint = $(run) pylint
 
 ##############################################################################
+# Show help by default.
+.DEFAULT_GOAL := help
+
+##############################################################################
 # Setup/update packages the system requires.
 .PHONY: setup
 setup:				# Install development/tool dependencies
