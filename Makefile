@@ -20,6 +20,10 @@ depsoutdated:			# Show a list of outdated dependencies
 depsupdate:			# Update all dependencies
 	pipenv update --dev
 
+.PHONY: depsshow
+depsshow:			# Show the dependency graph
+	pipenv graph
+
 .PHONY: lint
 lint:				# Run pylint over the code.
 	$(lint) pydscheck
