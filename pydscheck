@@ -64,6 +64,25 @@ def line_count( doc_string ):
     return len( doc_string.splitlines() )
 
 ##############################################################################
+# Does the given node look like a property?
+def looks_like_a_property( node ):
+    """Does a given node look like a property?
+
+    :param AST node: The ast node to check.
+    :returns: True if the node looks like a property, False if not.
+    :rtype: bool
+    """
+    return (
+        # If it's some sort of function...
+        isinstance( node, ( ast.FunctionDef, ast.AsyncFunctionDef ) ) and
+        # ...it's actually a property.
+        any(
+            decorator.id == "property" for decorator in node.decorator_list
+            if isinstance( decorator, ast.Name )
+        )
+    )
+
+##############################################################################
 # Does the given node look like an actual function?
 def looks_like_a_function( node ):
     """Does a given node look like a normal function?
@@ -82,29 +101,7 @@ def looks_like_a_function( node ):
         # ...and it doesn't look like an internal...
         not node.name.startswith( "_" ) and
         # ...it's not actually a property.
-        not any(
-            decorator.id == "property" for decorator in node.decorator_list
-            if isinstance( decorator, ast.Name )
-        )
-    )
-
-##############################################################################
-# Does the given node look like a property?
-def looks_like_a_property( node ):
-    """Does a given node look like a property?
-
-    :param AST node: The ast node to check.
-    :returns: True if the node looks like a property, False if not.
-    :rtype: bool
-    """
-    return (
-        # If it's some sort of function...
-        isinstance( node, ( ast.FunctionDef, ast.AsyncFunctionDef ) ) and
-        # ...it's actually a property.
-        any(
-            decorator.id == "property" for decorator in node.decorator_list
-            if isinstance( decorator, ast.Name )
-        )
+        not looks_like_a_property( node )
     )
 
 ##############################################################################
