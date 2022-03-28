@@ -77,7 +77,7 @@ def looks_like_a_property( node ):
         isinstance( node, ( ast.FunctionDef, ast.AsyncFunctionDef ) ) and
         # ...it's actually a property.
         any(
-            decorator.id == "property" for decorator in node.decorator_list
+            decorator.id in ( "property", "cached_property") for decorator in node.decorator_list
             if isinstance( decorator, ast.Name )
         )
     )
