@@ -9,7 +9,7 @@ __licence__    = "GPL"
 __credits__    = [ "Dave Pearson" ]
 __maintainer__ = "Dave Pearson"
 __email__      = "davep@davep.org"
-__version__    = "1.8.0"
+__version__    = "1.9.0"
 
 ##############################################################################
 # Imports.
